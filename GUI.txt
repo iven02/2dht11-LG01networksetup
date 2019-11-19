@@ -1,0 +1,273 @@
+
+
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, us-scalable=no, shrink-to-fit=yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="white" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>ReferenceTest</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0 !important;
+            touch-action: manipulation;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #dddddd;
+        }
+
+        #wrapper div, iframe {
+            border: 0;
+            margin: 0 auto;
+            float: left;
+            width: 450px;
+            height: 260px;
+            background-color : white;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="wrapper">
+        <div id='Humchart_div'></div>
+        <iframe src="https://thingspeak.com/channels/865332/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=10&title=Humidity&type=line&yaxismin=25"></iframe>
+    </div>
+    <div id="wrapper">
+        <div id='Tmpchart_div'></div>
+        <iframe src="https://thingspeak.com/channels/865332/charts/2?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=10&title=Temperature&type=line&yaxismin=15"></iframe>
+    </div>
+    <div id="wrapper">
+        <div id='Humchart_div2'></div>
+        <iframe src="https://thingspeak.com/channels/865332/charts/3?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=10&title=Humidity2&type=line&yaxismax=100&yaxismin=25"></iframe>
+    </div>
+    <div id="wrapper">
+        <div id='Tmpchart_div2'></div>
+        <iframe src="https://thingspeak.com/channels/865332/charts/4?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=10&title=Temperature2&type=line&yaxismin=15"></iframe>
+    </div>
+
+
+    <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js'></script>
+    <script type='text/javascript' src='https://www.google.com/jsapi'></script>
+    <script type='text/javascript'>
+
+        var channel_id = 865332;
+        var api_key = '';
+        var max_gauge_value = 100;
+        var max_gauge_value2 = 50;
+        var gauge_name = 'Humidity';
+        var gauge_name2 = 'Temperature';
+        var gauge_name3 = 'Humidity2';
+        var gauge_name4 = 'Temperature2';
+
+        var chart;
+        var charts;
+        var data;
+
+        google.load('visualization', '1', { packages: ['gauge'] });
+        google.setOnLoadCallback(TmpinitChart);
+
+        function TmpdisplayData(point) {
+            data.setValue(0, 0, gauge_name2);
+            data.setValue(0, 1, point);
+            chart.draw(data, options);
+        }
+
+        function TmploadData() {
+            var p1;
+            $.getJSON('https://api.thingspeak.com/channels/' + channel_id + '/feed/last.json?api_key=' + api_key, function (data) {
+                p1 = data.field2;
+                if (p1) {
+                    TmpdisplayData(p1);
+                }
+            });
+        }
+
+        function TmpinitChart() {
+            data = new google.visualization.DataTable();
+            data.addColumn('string', 'Label');
+            data.addColumn('number', 'Value');
+            data.addRows(1);
+            chart = new google.visualization.Gauge(document.getElementById('Tmpchart_div'));
+            options = {
+                width: 200,
+                height: 200,
+                greenFrom: 0,
+                greenTo: 18,
+                yellowFrom: 23,
+                yellowTo: 30,
+                redFrom: 30,
+                redTo: 100,
+                minorTicks: 5,
+                majorTicks: ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100'],
+                animation: {
+                    duration: 2000,
+                    easing: 'linear',
+                },
+            };
+            TmploadData();
+            setInterval('TmploadData()', 2000);
+        }
+    </script>
+    <script type='text/javascript'>
+        var chart2;
+        var charts2;
+        var data2;
+
+        google.load('visualization', '1', { packages: ['gauge'] });
+        google.setOnLoadCallback(HuminitChart);
+
+        function HumdisplayData(point2) {
+            data2.setValue(0, 0, gauge_name);
+            data2.setValue(0, 1, point2);
+            chart2.draw(data2, options2);
+        }
+
+        function HumloadData() {
+            var p2;
+            $.getJSON('https://api.thingspeak.com/channels/' + channel_id + '/feed/last.json?api_key=' + api_key, function (data2) {
+                p2 = data2.field1;
+                if (p2) {
+                    HumdisplayData(p2);
+                }
+            });
+        }
+
+        function HuminitChart() {
+            data2 = new google.visualization.DataTable();
+            data2.addColumn('string', 'Label');
+            data2.addColumn('number', 'Value');
+            data2.addRows(1);
+            chart2 = new google.visualization.Gauge(document.getElementById('Humchart_div'));
+            options2 = {
+                width: 200,
+                height: 200,
+                greenFrom: 0,
+                greenTo: 30,
+                yellowFrom: 50,
+                yellowTo: 70,
+                redFrom: 70,
+                redTo: 100,
+                minorTicks: 5,
+                majorTicks: ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100'],
+                animation: {
+                    duration: 2000,
+                    easing: 'linear',
+                },
+            };
+            HumloadData();
+            setInterval('HumloadData()', 2000);
+        }
+    </script>
+    <!---------------------node2 sensor--------------------->
+    <script type='text/javascript'>
+
+        var chart3;
+        var charts3;
+        var data3;
+
+        google.load('visualization', '1', { packages: ['gauge'] });
+        google.setOnLoadCallback(TmpinitChart2);
+
+        function TmpdisplayData2(point3) {
+            data3.setValue(0, 0, gauge_name4);
+            data3.setValue(0, 1, point3);
+            chart3.draw(data3, options3);
+        }
+
+        function TmploadData2() {
+            var p3;
+            $.getJSON('https://api.thingspeak.com/channels/' + channel_id + '/feed/last.json?api_key=' + api_key, function (data3) {
+                p3 = data3.field4;
+                if (p3) {
+                    TmpdisplayData2(p3);
+                }
+            });
+        }
+
+        function TmpinitChart2() {
+            data3 = new google.visualization.DataTable();
+            data3.addColumn('string', 'Label');
+            data3.addColumn('number', 'Value');
+            data3.addRows(1);
+            chart3 = new google.visualization.Gauge(document.getElementById('Tmpchart_div2'));
+            options3 = {
+                width: 200,
+                height: 200,
+                greenFrom: 0,
+                greenTo: 18,
+                yellowFrom: 23,
+                yellowTo: 30,
+                redFrom: 30,
+                redTo: 100,
+                minorTicks: 5,
+                majorTicks: ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100'],
+                animation: {
+                    duration: 2000,
+                    easing: 'linear',
+                },
+            };
+            TmploadData2();
+            setInterval('TmploadData2()', 2000);
+        }
+    </script>
+
+    <script type='text/javascript'>
+        var chart4;
+        var charts4;
+        var data4;
+
+        google.load('visualization', '1', { packages: ['gauge'] });
+        google.setOnLoadCallback(HuminitChart2);
+
+        function HumdisplayData2(point4) {
+            data4.setValue(0, 0, gauge_name3);
+            data4.setValue(0, 1, point4);
+            chart4.draw(data4, options4);
+        }
+
+        function HumloadData2() {
+            var p4;
+            $.getJSON('https://api.thingspeak.com/channels/' + channel_id + '/feed/last.json?api_key=' + api_key, function (data4) {
+                p4 = data4.field3;
+                if (p4) {
+                    HumdisplayData2(p4);
+                }
+            });
+        }
+
+        function HuminitChart2() {
+            data4 = new google.visualization.DataTable();
+            data4.addColumn('string', 'Label');
+            data4.addColumn('number', 'Value');
+            data4.addRows(1);
+            chart4 = new google.visualization.Gauge(document.getElementById('Humchart_div2'));
+            options4 = {
+                width: 200,
+                height: 200,
+                greenFrom: 0,
+                greenTo: 30,
+                yellowFrom: 50,
+                yellowTo: 70,
+                redFrom: 70,
+                redTo: 100,
+                minorTicks: 5,
+                majorTicks: ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100'],
+                animation: {
+                    duration: 2000,
+                    easing: 'linear',
+                },
+            };
+            HumloadData2();
+            setInterval('HumloadData2()', 2000);
+        }
+    </script>
+</body>
+</html>
